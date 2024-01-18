@@ -2,14 +2,10 @@ import './globals.css';
 import { Provider } from '@/components/provider';
 
 import { Metadata } from 'next'
+import { fontMono, fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
-  title: {
-    default: 'Ghost NFT Protocol',
-    template: `%s - Next.js AI Chatbot`
-  },
-  description: 'Mint GHO Tokens by submitting NFTs as collateral',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' }
@@ -22,6 +18,8 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       <body
         className={cn(
           'font-sans antialiased overflow-hidden',
+          fontSans.variable,
+          fontMono.variable
         )}
       >
         <Provider attribute="class" defaultTheme="system" enableSystem>
