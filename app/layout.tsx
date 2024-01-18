@@ -4,6 +4,7 @@ import { Provider } from '@/components/provider';
 import { Metadata } from 'next'
 import { fontMono, fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
   themeColor: [
@@ -24,6 +25,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       >
         <Provider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
           </div>
         </Provider>
