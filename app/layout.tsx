@@ -7,6 +7,11 @@ import { cn } from '@/lib/utils'
 import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
+  title: {
+    default: 'GHO UPI',
+    template: `%s - Next.js AI Chatbot`
+  },
+  description: 'UPI to GHO Facilitator',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' }

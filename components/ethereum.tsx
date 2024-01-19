@@ -1,4 +1,4 @@
-import { WagmiConfig, createConfig } from "wagmi";
+import { Connector, WagmiConfig, createConfig } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { ConnectKitProvider, getDefaultConfig, ConnectKitButton } from "connectkit";
 
