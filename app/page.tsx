@@ -50,37 +50,30 @@ import { Badge } from "@/components/ui/badge"
 
 function Page() {
   const { address } = useAccount();
-  const [paymentAmount, setPaymentAmount] = useState<number | null>(null);
-
-
+  const [paymentAmount, setPaymentAmount] = useState(null);
+  const paymentId = "pay_NQWWRfwYndjTwx";
 
   useEffect(() => {
     if (!address) return;
     console.log("Address: ", address);
-    
-    // Fetch the paymentAmount and set it in the state
-    const apiKey = 'rzp_test_syi2TbyKjKWPVN:NQ1SbaaxkoOJUBAo3TLve6EN'; // Replace with your API key
-    const paymentId = 'pay_NQWWRfwYndjTwx'; // Replace with your payment ID
 
-    axios
-      .get(`https://api.razorpay.com/v1/payments/${paymentId}`, {
-        headers: {
-          Authorization: `Basic ${Buffer.from(apiKey).toString('base64')}`,
-        },
-      })
-      .then((response) => {
-        const { data } = response;
-        const amount = data.amount / 100; // Razorpay amounts are in paise, so divide by 100 to get rupees
-        setPaymentAmount(amount);
-      })
-      .catch((error) => {
-        console.error('Error fetching payment info:', error);
-      });
-    }, [address]);
+    // Fetch payment details from the proxy server
+    const fetchPaymentDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/payment/${paymentId}`);
+        if (response.data && response.data.amount) {
+          // Convert amount from paise to rupees
+          setPaymentAmount(response.data.amount / 100);
+        }
+      } catch (error) {
+        console.error('Error fetching payment details:', error);
+      }
+    };
 
-    
+    fetchPaymentDetails();
+  }, [address, paymentId]);
   
-    
+  
 
   return (
     <div>
@@ -126,7 +119,7 @@ function Page() {
                             <Label>INR Token</Label>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">633.60</TableCell>
+                        <TableCell className="text-center">{paymentAmount !== null ? paymentAmount.toFixed(2) : 'Loading...'}</TableCell>
                         <TableCell className="text-center">2.02 %</TableCell>
                         <TableCell className="text-right">
                           <Button>Borrow</Button>
