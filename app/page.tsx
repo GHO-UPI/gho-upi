@@ -1,5 +1,6 @@
 'use client'
 
+import './globals.css';
 import axios from 'axios';
 import * as React from 'react'
 import { useState, useEffect } from 'react';
@@ -48,9 +49,53 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 
+let SuppliedToken = 0;
+
+
+function SupplyModal({ maxAmount, onClose, onSupply }) {
+  const [inputAmount, setInputAmount] = useState(0);
+
+  
+  const handleChange = (e) => setInputAmount(Math.max(0, Math.min(maxAmount, Number(e.target.value))));
+
+  const handleSubmit = () => {
+    onSupply(inputAmount);
+    onClose();
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <span className="close" onClick={onClose}>&times;</span>
+        <h2>Supply Tokens</h2>
+        <div className="input-container">
+  
+          <input
+            type="number"
+            value={inputAmount}
+            onChange={handleChange}
+            className="input-field"
+          />
+        
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={inputAmount <= 0 || inputAmount > maxAmount}
+          className="supply-button"
+        >
+          Final Supply
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+
 function Page() {
   const { address } = useAccount();
   const [totalAmount, setTotalAmount] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!address) return;
@@ -69,7 +114,13 @@ function Page() {
 
     fetchPayments();
   }, [address]);
-  
+
+  const handleSupply = (amount) => {
+    SuppliedToken += amount;
+    setShowModal(false);
+  };
+
+
   
 
   return (
@@ -82,7 +133,7 @@ function Page() {
             className="mt-[-20vh]"
           />
           <p className="font-bold text-center text-2xl mt-4">Please, connect your wallet</p>
-          <p className="text-center text-xl mt-4">Please connect your wallet to see your NFT collaterals and borrowings</p>
+          <p className="text-center text-xl mt-4">Avail our UPI to GHO token Borrowing services</p>
         </div>
       ) : (
         <div style={{ padding: '200px', display: 'flex', justifyContent: 'space-between' }} className="overflow-y-auto max-h-[94vh] nft-scroll">
@@ -116,10 +167,18 @@ function Page() {
                             <Label>INR Token</Label>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center"> {totalAmount.toFixed(2)}</TableCell>
+                        <TableCell className="text-center"> { (totalAmount - SuppliedToken).toFixed(2) }
+</TableCell>
                         <TableCell className="text-center">6.66 %</TableCell>
                         <TableCell className="text-right">
-                          <Button>Borrow</Button>
+                        <Button onClick={() => setShowModal(true)}>Supply</Button>
+      {showModal && (
+        <SupplyModal
+          maxAmount={totalAmount - SuppliedToken}
+          onClose={() => setShowModal(false)}
+          onSupply={handleSupply}
+        />
+      )}
                         </TableCell>
                       </TableRow>
                     </TableBody>

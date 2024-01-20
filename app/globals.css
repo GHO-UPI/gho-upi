@@ -104,3 +104,83 @@
   scrollbar-width: thin;
   scrollbar-color: #000 transparent;
 }
+
+
+/* CSS for SupplyModal */
+/* CSS for SupplyModal */
+/* CSS for SupplyModal */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 300px;
+  width: 100%;
+  color: black; /* Set text color to black */
+}
+
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: black; /* Set text color to black */
+}
+
+/* Updated Input Field Style */
+.input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  font-size: 20px;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  padding: 15px; /* Increase padding for a bigger size */
+  outline: none;
+  background: linear-gradient(to right, #f3f3f3, #dcdcdc); /* Gradient background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: black; /* Set text color to black */
+}
+
+.supply-button {
+  background-color: #007bff; /* Blue color for the button when enabled */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.supply-button:disabled {
+  background-color: black; /* Black color for the button when disabled */
+  cursor: not-allowed;
+}
