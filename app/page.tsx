@@ -50,28 +50,25 @@ import { Badge } from "@/components/ui/badge"
 
 function Page() {
   const { address } = useAccount();
-  const [paymentAmount, setPaymentAmount] = useState(null);
-  const paymentId = "pay_NQWWRfwYndjTwx";
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     if (!address) return;
-    console.log("Address: ", address);
 
-    // Fetch payment details from the proxy server
-    const fetchPaymentDetails = async () => {
+    const fetchPayments = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/payment/${paymentId}`);
-        if (response.data && response.data.amount) {
-          // Convert amount from paise to rupees
-          setPaymentAmount(response.data.amount / 100);
+        const response = await axios.get('http://localhost:3001/payments');
+        if (response.data && response.data.items) {
+          const total = response.data.items.reduce((sum, item) => sum + item.amount, 0);
+          setTotalAmount(total / 100); // Convert amount from paise to rupees
         }
       } catch (error) {
-        console.error('Error fetching payment details:', error);
+        console.error('Error fetching payments:', error);
       }
     };
 
-    fetchPaymentDetails();
-  }, [address, paymentId]);
+    fetchPayments();
+  }, [address]);
   
   
 
@@ -119,8 +116,8 @@ function Page() {
                             <Label>INR Token</Label>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">{paymentAmount !== null ? paymentAmount.toFixed(2) : 'Loading...'}</TableCell>
-                        <TableCell className="text-center">2.02 %</TableCell>
+                        <TableCell className="text-center"> {totalAmount.toFixed(2)}</TableCell>
+                        <TableCell className="text-center">6.66 %</TableCell>
                         <TableCell className="text-right">
                           <Button>Borrow</Button>
                         </TableCell>
