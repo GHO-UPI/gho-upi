@@ -113,7 +113,7 @@ function Page()
     address: ghoTokenAddress,
     abi: GhoTokenABI,
     functionName: 'burn',
-    args: [ethers.parseUnits('10', 18)], // Burn 10 GHO tokens
+    args: [ethers.parseUnits('1.26', 18)], // Burn 10 GHO tokens
   });
   const { data: facilitatorBucketData } = useContractRead({
     address: ghoTokenAddress,
@@ -298,7 +298,7 @@ function Page()
                             <Label>GHO</Label>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">0.1134539</TableCell>
+                        <TableCell className="text-center">{ ((suppliedTokenAmount)).toFixed(2) }</TableCell>
                         <TableCell className="text-center">2.02 %</TableCell>
                         <TableCell className="text-right">
                         <Button onClick={handleRepayClick}>Repay</Button>
