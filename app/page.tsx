@@ -4,9 +4,12 @@ import './globals.css';
 import axios from 'axios';
 import * as React from 'react'
 import { useState, useEffect } from 'react';
-import { useAccount } from 'wagmi'
+import { useAccount, useContractWrite, useContractRead, useWaitForTransaction } from 'wagmi'
 import Image from 'next/image';
 import RazorpayButton from '@/components/ui/razorpay';
+import GhoTokenABI from '.././GhoTokenABI.json'
+import { ethers } from 'ethers';
+
 import {
   Card,
   CardContent,
@@ -49,17 +52,21 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 
+
+const ghoTokenAddress = "0x7c6D6B74733C0b2cBa4993d80ab1574cca20fEd9";
+
+
 let SuppliedToken = 0;
 
 
 function SupplyModal({ maxAmount, onClose, onSupply }) {
   const [inputAmount, setInputAmount] = useState(0);
 
-  
   const handleChange = (e) => setInputAmount(Math.max(0, Math.min(maxAmount, Number(e.target.value))));
 
   const handleSubmit = () => {
-    onSupply(inputAmount);
+    const ghoAmount = inputAmount * 0.012; // Calculate the GHO amount
+    onSupply(ghoAmount); // Pass the calculated GHO amount
     onClose();
   };
 
@@ -92,8 +99,29 @@ function SupplyModal({ maxAmount, onClose, onSupply }) {
 
 
 
-function Page() {
+function Page() 
+{
+
   const { address } = useAccount();
+  const { write: mintGhoToken } = useContractWrite({
+    address: ghoTokenAddress,
+    abi: GhoTokenABI,
+    functionName: 'mint',
+    args: [address, ethers.parseUnits('10', 18)], // Mint 10 GHO tokens
+  });
+  const { write: burnGhoToken } = useContractWrite({
+    address: ghoTokenAddress,
+    abi: GhoTokenABI,
+    functionName: 'burn',
+    args: [ethers.parseUnits('10', 18)], // Burn 10 GHO tokens
+  });
+  const { data: facilitatorBucketData } = useContractRead({
+    address: ghoTokenAddress,
+    abi: GhoTokenABI,
+    functionName: 'getFacilitatorBucket',
+    args: [address], // User's wallet address
+    watch: true, // Optional: set to true to keep data updated
+  });
   const [totalAmount, setTotalAmount] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
@@ -115,13 +143,57 @@ function Page() {
     fetchPayments();
   }, [address]);
 
-  const handleSupply = (amount) => {
-    SuppliedToken += amount;
+  const handleSupply = async (ghoAmount) => {
+    SuppliedToken += ghoAmount;
     setShowModal(false);
+
+    if (!address) {
+      console.error('Wallet not connected');
+      return;
+    }
+
+    try {
+      const tx = await mintGhoToken({
+        args: [address, ethers.parseUnits(ghoAmount.toString(), 18)]
+      });
+      await tx.wait();
+      console.log(`${ghoAmount} GHO tokens minted to`, address);
+    } catch (error) {
+      console.error('Error minting GHO tokens:', error);
+    }
   };
 
+  const handleBorrowClick = async () => {
+    if (!address) {
+      console.error('Wallet not connected');
+      return;
+    }
 
-  
+    try {
+      const tx = await mintGhoToken();
+      await tx.wait();
+      console.log('10 GHO tokens minted to', address);
+    } catch (error) {
+      console.error('Error minting GHO tokens:', error);
+    }
+  };
+  const handleRepayClick = async () => {
+    if (!address) {
+      console.error('Wallet not connected');
+      return;
+    }
+
+    try {
+      const tx = await burnGhoToken();
+      await tx.wait();
+      console.log('10 GHO tokens burned from', address);
+    } catch (error) {
+      console.error('Error burning GHO tokens:', error);
+    }
+  };
+  const suppliedTokenAmount = facilitatorBucketData 
+    ? parseFloat(ethers.formatUnits(facilitatorBucketData[1], 18)) 
+    : 0; 
 
   return (
     <div>
@@ -167,7 +239,7 @@ function Page() {
                             <Label>INR Token</Label>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center"> { (totalAmount - SuppliedToken).toFixed(2) }
+                        <TableCell className="text-center"> { (totalAmount - (suppliedTokenAmount/0.012)).toFixed(2) }
 </TableCell>
                         <TableCell className="text-center">6.66 %</TableCell>
                         <TableCell className="text-right">
@@ -229,7 +301,7 @@ function Page() {
                         <TableCell className="text-center">0.1134539</TableCell>
                         <TableCell className="text-center">2.02 %</TableCell>
                         <TableCell className="text-right">
-                          <Button>Repay</Button>
+                        <Button onClick={handleRepayClick}>Repay</Button>
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -267,7 +339,7 @@ function Page() {
                         <TableCell className="text-center">633.60</TableCell>
                         <TableCell className="text-center">2.02 %</TableCell>
                         <TableCell className="text-right">
-                          <Button>Borrow</Button>
+                        <Button onClick={handleBorrowClick}>Borrow</Button>
                         </TableCell>
                       </TableRow>
                     </TableBody>
