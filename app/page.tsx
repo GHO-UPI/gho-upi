@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useContractWrite, useContractRead, useWaitForTransaction } from 'wagmi'
 import Image from 'next/image';
 import RazorpayButton from '@/components/ui/razorpay';
+import CheckoutButton from '@/components/ui/checkout';
 import GhoTokenABI from '.././GhoTokenABI.json'
 import { ethers } from 'ethers';
 
@@ -58,6 +59,41 @@ const ghoTokenAddress = "0x7c6D6B74733C0b2cBa4993d80ab1574cca20fEd9";
 
 let SuppliedToken = 0;
 
+function RepayModal({ maxAmount, onClose, onRepay }) {
+  const [inputAmount, setInputAmount] = useState(0);
+
+  const handleChange = (e) => setInputAmount(Math.max(0, Math.min(maxAmount*0.012, Number(e.target.value))));
+
+  const handleSubmit = () => {
+    const ghoAmount = inputAmount; // Calculate the GHO amount to be repaid
+    onRepay(ghoAmount); // Pass the calculated GHO amount
+    onClose();
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <span className="close" onClick={onClose}>&times;</span>
+        <h2>Repay Tokens</h2>
+        <div className="input-container">
+          <input
+            type="number"
+            value={inputAmount}
+            onChange={handleChange}
+            className="input-field"
+          />
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={inputAmount <= 0 || inputAmount > maxAmount}
+          className="repay-button"
+        >
+          Repay
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function SupplyModal({ maxAmount, onClose, onSupply }) {
   const [inputAmount, setInputAmount] = useState(0);
@@ -90,7 +126,7 @@ function SupplyModal({ maxAmount, onClose, onSupply }) {
           disabled={inputAmount <= 0 || inputAmount > maxAmount}
           className="supply-button"
         >
-          Final Supply
+         Supply
         </button>
       </div>
     </div>
@@ -124,6 +160,7 @@ function Page()
   });
   const [totalAmount, setTotalAmount] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showRepayModal, setShowRepayModal] = useState(false);
 
   useEffect(() => {
     if (!address) return;
@@ -177,20 +214,27 @@ function Page()
       console.error('Error minting GHO tokens:', error);
     }
   };
-  const handleRepayClick = async () => {
+
+  const handleRepay = async (ghoAmount) => {
+    // Logic to repay GHO tokens
     if (!address) {
       console.error('Wallet not connected');
       return;
     }
 
     try {
-      const tx = await burnGhoToken();
+      const tx = await burnGhoToken({
+        args: [ethers.parseUnits(ghoAmount.toString(), 18)]
+      });
       await tx.wait();
-      console.log('10 GHO tokens burned from', address);
+      console.log(`${ghoAmount} GHO tokens burned from`, address);
     } catch (error) {
       console.error('Error burning GHO tokens:', error);
     }
+
+    setShowRepayModal(false);
   };
+
   const suppliedTokenAmount = facilitatorBucketData 
     ? parseFloat(ethers.formatUnits(facilitatorBucketData[1], 18)) 
     : 0; 
@@ -200,16 +244,19 @@ function Page()
       {!address ? (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <img
-            src="gho.jpeg"
+            src="https://i.ibb.co/B33GSr1/logo-removebg-preview.png"
             alt="GHO"
-            className="mt-[-20vh]"
+            className="mt-[-20vh]" width={300}
           />
-          <p className="font-bold text-center text-2xl mt-4">Please, connect your wallet</p>
+          <p className="font-bold text-center text-2xl mt-4">Connect your wallet to proceed</p>
           <p className="text-center text-xl mt-4">Avail our UPI to GHO token Borrowing services</p>
         </div>
       ) : (
+        
         <div style={{ padding: '200px', display: 'flex', justifyContent: 'space-between' }} className="overflow-y-auto max-h-[94vh] nft-scroll">
+      
           {/* Left side */}
+  
           <div style={{ width: '50%' }}> 
           <Card>
                 <CardHeader>
@@ -224,7 +271,7 @@ function Page()
                       <TableRow>
                         <TableHead className="w-[175px]">Asset</TableHead>
                         <TableHead className="text-center w-[170px]">Available</TableHead>
-                        <TableHead className="text-center w-[170px]">APY</TableHead>
+                      
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -241,9 +288,9 @@ function Page()
                         </TableCell>
                         <TableCell className="text-center"> { (totalAmount - (suppliedTokenAmount/0.012)).toFixed(2) }
 </TableCell>
-                        <TableCell className="text-center">6.66 %</TableCell>
+                       
                         <TableCell className="text-right">
-                        <Button onClick={() => setShowModal(true)}>Supply</Button>
+                        <Button onClick={() => setShowModal(true)}>Trade</Button>
       {showModal && (
         <SupplyModal
           maxAmount={totalAmount - SuppliedToken}
@@ -281,7 +328,7 @@ function Page()
                       <TableRow>
                         <TableHead className="w-[175px]">Asset</TableHead>
                         <TableHead className="text-center w-[170px]">Debt</TableHead>
-                        <TableHead className="text-center w-[170px]">APY</TableHead>
+                       
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -297,16 +344,31 @@ function Page()
                           </div>
                         </TableCell>
                         <TableCell className="text-center">{ ((suppliedTokenAmount)).toFixed(2) }</TableCell>
-                        <TableCell className="text-center">2.02 %</TableCell>
+                        
                         <TableCell className="text-right">
-                        <Button onClick={handleRepayClick}>Repay</Button>
+                        <Button onClick={() => setShowRepayModal(true)}>Return</Button>
+    {showRepayModal && (
+      <RepayModal
+        maxAmount={suppliedTokenAmount / 0.012}
+        onClose={() => setShowRepayModal(false)}
+        onRepay={handleRepay}
+      />
+    )}
                         </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
-  
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="text-xl">Checkout</CardTitle>
+              
+              </CardHeader>
+              <CardContent>
+               <Button variant="destructive">Convert to FIAT</Button>
+                             </CardContent>
+            </Card>
             </div>
           </div>
         </div>
