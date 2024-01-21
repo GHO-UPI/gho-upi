@@ -2,6 +2,7 @@
 A Payment Facilitator for users to buy GHO Tokens using UPI and other Web2 Payment Services
 
 ## Setting up
+Clone the repository: `https://github.com/GHO-UPI/gho-upi.git`
 
 First, you need to run the proxy server to handle payments: 
 #### Move the proxy-server folder to a different location and run `npm i` and `node server.js`
