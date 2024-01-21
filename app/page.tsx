@@ -211,9 +211,9 @@ function Page()
         <div style={{ padding: '200px', display: 'flex', justifyContent: 'space-between' }} className="overflow-y-auto max-h-[94vh] nft-scroll">
           {/* Left side */}
           <div style={{ width: '50%' }}> 
-          <Card className="mt-4">
+          <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl">Assets to Supply</CardTitle>
+                  <CardTitle className="text-xl">INR Token Balance</CardTitle>
                   {/* <CardDescription className="pt-2">
                     <Badge variant="outline" className="rounded-sm">Borrow power used 99%</Badge>
                   </CardDescription> */}
@@ -272,10 +272,8 @@ function Page()
             <div>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl">Your borrows</CardTitle>
-                  <CardDescription className="pt-2">
-                    <Badge variant="outline" className="rounded-sm">Borrow power used 99%</Badge>
-                  </CardDescription>
+                  <CardTitle className="text-xl">GHO Token Balance</CardTitle>
+                  
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -308,44 +306,7 @@ function Page()
                   </Table>
                 </CardContent>
               </Card>
-              <Card className="mt-4">
-                <CardHeader>
-                  <CardTitle className="text-xl">Assets to borrow</CardTitle>
-                  {/* <CardDescription className="pt-2">
-                    <Badge variant="outline" className="rounded-sm">Borrow power used 99%</Badge>
-                  </CardDescription> */}
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[175px]">Asset</TableHead>
-                        <TableHead className="text-center w-[170px]">Available</TableHead>
-                        <TableHead className="text-center w-[170px]">APY</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center space-x-3 mt-2">
-                            <Avatar> 
-                              <AvatarImage src="https://app.aave.com/icons/tokens/gho.svg" alt="GHO"/>
-                              <AvatarFallback>GHO</AvatarFallback>
-                            </Avatar>
-                            <Label>GHO</Label>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">633.60</TableCell>
-                        <TableCell className="text-center">2.02 %</TableCell>
-                        <TableCell className="text-right">
-                        <Button onClick={handleBorrowClick}>Borrow</Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+  
             </div>
           </div>
         </div>
